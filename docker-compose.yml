@@ -1,0 +1,128 @@
+version: '3'
+
+services:
+
+  datadog:
+    image: datadog/agent
+    environment:
+      - DD_API_KEY= efb99a13112dd277ba6cc8090dcddd53
+      - DD_SITE= datadoghq.com
+      - DD_LOGS_ENABLED= true
+      - DD_APM_ENABLED= true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+
+  post-api:
+    container_name: "post-api"
+    image: docker.io/fabrizioserial/jibber-jabber-mega-post:lastest
+    ports:
+      - "8082:8080"
+    environment:
+      DB_USER: sa
+      DB_PASSWORD: password
+      DB_NAME: postgres
+      DB_HOST: post-db
+      DB_PORT: 5432
+      KC_URL: proxy:80/keycloak
+      KEYCLOAK_POST_SECRET: kcJrOrIN1hfmoKxXLxLPIMQsNva8ptjy
+      KEYCLOACK_REALM_KEY: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqdZsy2LyBe/3KZ1ZFLgj8EIw+fcx/m1M8BRbogAFY/j/B4rL0uRnKPn5uNmiZj1ELAC0y4qYL/WaROd7v2JmXO9wpWMnIS6urd0hJNlGSxxpG62czQHeW2H8AcG5VbZGkEXU69GesNfVl0Tp7u+WKT+UUzg3V0BbfHE0NFm0EkZ4jGuHOhgttsLx2uKNzgeTrtgPoYV3wAFajqKHB4J3ZDg4tztrsGMgpk4Sv7O8RvIxwekz+fFV9Okgbofy06XoPPBy3Bz1WDiBvdDk4uKaOM02YJ5vHw5PWKMIu7cznB4rc8oliOSPNc+2fzsCVXTqxX/I3OvEiPCBqxV+v4mV2QIDAQAB
+      DD_API_KEY: efb99a13112dd277ba6cc8090dcddd53
+    depends_on:
+      - post-db
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "java", "service": "post-api", "log_processing_rules": [{"type": "multi_line", "name": "log_start_with_date", "pattern" : "\\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])"}]}]'
+
+
+  post-db:
+    container_name: "post-db"
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: post-db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  follow-api:
+    container_name: "follow-api"
+    image: docker.io/fabrizioserial/jibber-jabber-mega-follow:lastest
+    ports:
+      - "8083:8080"
+    environment:
+      DB_USER: sa
+      DB_PASSWORD: password
+      DB_NAME: postgres
+      DB_HOST: follow-db
+      DB_PORT: 5432
+      KC_URL: proxy:80/keycloak
+      KEYCLOAK_POST_SECRET: kii3j07a29qGaE9yqNOkU7gVssqZUT30
+      KEYCLOACK_REALM_KEY: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqdZsy2LyBe/3KZ1ZFLgj8EIw+fcx/m1M8BRbogAFY/j/B4rL0uRnKPn5uNmiZj1ELAC0y4qYL/WaROd7v2JmXO9wpWMnIS6urd0hJNlGSxxpG62czQHeW2H8AcG5VbZGkEXU69GesNfVl0Tp7u+WKT+UUzg3V0BbfHE0NFm0EkZ4jGuHOhgttsLx2uKNzgeTrtgPoYV3wAFajqKHB4J3ZDg4tztrsGMgpk4Sv7O8RvIxwekz+fFV9Okgbofy06XoPPBy3Bz1WDiBvdDk4uKaOM02YJ5vHw5PWKMIu7cznB4rc8oliOSPNc+2fzsCVXTqxX/I3OvEiPCBqxV+v4mV2QIDAQAB
+      DD_API_KEY: efb99a13112dd277ba6cc8090dcddd53
+    depends_on:
+      - follow-db
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "java", "service": "follow-api", "log_processing_rules": [{"type": "multi_line", "name": "log_start_with_date", "pattern" : "\\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])"}]}]'
+
+  follow-db:
+    container_name: "follow-db"
+    image: postgres:12
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: follow-db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:18.0.0
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=keycloak-db
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=password
+    ports:
+      - "8081:8080"
+    command: start-dev
+    depends_on:
+      - keycloak-db
+
+  keycloak-db:
+    container_name: "keycloak-db"
+    image: postgres:12
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: keycloak
+
+  frontend:
+    container_name: frontend
+    image: docker.io/fabrizioserial/javier-javier-mega-ui:latest
+    ports:
+      - "9090:80"
+    restart: always
+
+  proxy:
+    container_name: proxy
+    image: nginx
+    ports:
+      - 80:80
+    restart: always
+    volumes:
+      - ./static/:/usr/share/nginx/html:ro
+      - ./conf.d/:/etc/nginx/conf.d/:ro
+
+volumes:
+  pgdata:
+    external: true
