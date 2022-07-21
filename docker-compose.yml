@@ -79,7 +79,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: follow-db
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - followdata:/var/lib/postgresql/data
       - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
 
   keycloak:
