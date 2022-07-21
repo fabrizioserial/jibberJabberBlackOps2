@@ -115,17 +115,19 @@ services:
 
   proxy:
     container_name: proxy
-    image: nginx
+    image: nginx:latest
     ports:
       - 80:80
+      - 443:443
     restart: always
     volumes:
       - ./static/:/usr/share/nginx/html:ro
       - ./conf.d/:/etc/nginx/conf.d/:ro
-      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/www/:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/letsencrypt/:ro
 
   certbot:
+    container_name: certbot
     image: certbot/certbot:latest
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
