@@ -1,6 +1,6 @@
 #!/bin/bash
 
-domains=(jibberjabber.cloud www.jibberjabber.cloud)
+domains=(dev.jibberjabber.cloud)
 rsa_key_size=4096
 data_path="./certbot"
 email="mauro.kinderknecht@ing.austral.edu.ar" # Adding a valid address is strongly recommended
