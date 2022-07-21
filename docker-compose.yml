@@ -51,7 +51,7 @@ services:
 
   follow-api:
     container_name: follow-api
-    image: ghcr.io/fabrizioserial/jibberjabberfollower:main
+    image: ghcr.io/fabrizioserial/jibberjabberfollower-prod:latest
     ports:
       - "8083:8080"
     environment:
@@ -61,7 +61,7 @@ services:
       DB_HOST: follow-db
       DB_PORT: 5432
       KC_URL: proxy:80/keycloak
-      KEYCLOAK_POST_SECRET: kii3j07a29qGaE9yqNOkU7gVssqZUT30
+      KEYCLOAK_FOLLOW_SECRET: kii3j07a29qGaE9yqNOkU7gVssqZUT30
       KEYCLOACK_REALM_KEY: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqdZsy2LyBe/3KZ1ZFLgj8EIw+fcx/m1M8BRbogAFY/j/B4rL0uRnKPn5uNmiZj1ELAC0y4qYL/WaROd7v2JmXO9wpWMnIS6urd0hJNlGSxxpG62czQHeW2H8AcG5VbZGkEXU69GesNfVl0Tp7u+WKT+UUzg3V0BbfHE0NFm0EkZ4jGuHOhgttsLx2uKNzgeTrtgPoYV3wAFajqKHB4J3ZDg4tztrsGMgpk4Sv7O8RvIxwekz+fFV9Okgbofy06XoPPBy3Bz1WDiBvdDk4uKaOM02YJ5vHw5PWKMIu7cznB4rc8oliOSPNc+2fzsCVXTqxX/I3OvEiPCBqxV+v4mV2QIDAQAB
       DD_API_KEY: efb99a13112dd277ba6cc8090dcddd53
     depends_on:
@@ -111,7 +111,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: ghcr.io/fabrizioserial/javierjavierfront:develop
+    image: ghcr.io/fabrizioserial/javierjavierfront-prod:latest
     ports:
       - "9090:80"
     restart: always
@@ -123,6 +123,9 @@ services:
       - 80:80
       - 443:443
     restart: always
+    depends_on:
+      - follow-api
+      - post-api
     volumes:
       - ./static/:/usr/share/nginx/html:ro
       - ./conf.d/:/etc/nginx/conf.d/:rw
@@ -138,4 +141,6 @@ services:
 
 volumes:
   pgdata:
+    external: true
+  followdata:
     external: true
