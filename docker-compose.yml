@@ -80,7 +80,7 @@ services:
       POSTGRES_DB: follow-db
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - /./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
 
   keycloak:
     image: quay.io/keycloak/keycloak:18.0.0
