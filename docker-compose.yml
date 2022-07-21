@@ -3,6 +3,7 @@ version: '3'
 services:
 
   datadog:
+    container_name: datadog
     image: datadog/agent
     environment:
       - DD_API_KEY= efb99a13112dd277ba6cc8090dcddd53
