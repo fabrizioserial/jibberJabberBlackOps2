@@ -6,7 +6,7 @@ services:
     container_name: datadog
     image: datadog/agent
     environment:
-      - DD_API_KEY= efb99a13112dd277ba6cc8090dcddd53
+      - DD_API_KEY= ${DD_API_KEY}
       - DD_SITE= datadoghq.com
       - DD_LOGS_ENABLED= true
       - DD_APM_ENABLED= true
@@ -17,7 +17,7 @@ services:
 
   post-api:
     container_name: post-api
-    image: ghcr.io/fabrizioserial/jibberjabberpost:main
+    image: ghcr.io/fabrizioserial/jibberjabberpost-${ENV_TAG}:latest
     ports:
       - "8082:8080"
     environment:
@@ -27,9 +27,9 @@ services:
       DB_HOST: post-db
       DB_PORT: 5432
       KC_URL: proxy:80/keycloak
-      KEYCLOAK_POST_SECRET: QZCSmyoJFAvyLRamEtCNCVOXTyht4M1u
-      KEYCLOACK_REALM_KEY: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvAoQzAcQkmC4UF7YFZLIQNu1EHnupVeywQOZKRUsB/NQOxLa2ct3lZAZb05F1Xi9+jEhYPz3XG2YvBSnyGfzpEbqXnuYjI+ek6Zp/XUL/N5tKbH12gGiSMSj/t83lIWqSY/+jrfn5GP9L2zHc5WJHvSm913yp1RKKw19NJawsrkDRXl8UB3H1Wso8d/TgXOeQGIO7OWkWSQO50PsZbEO2siMBaWg+3TLOPvO2PtXPTSefLNFW3ekQKXzUJ1R3Zbo4PKPIe7oQuHDDwAD1BFlPHRZiSeazGZyJddKxlnE5sZQ+5Ij/4zLUnoDK8YC485wAGX3X8oArUXoWaWTt35cTwIDAQAB
-      DD_API_KEY: efb99a13112dd277ba6cc8090dcddd53
+      KEYCLOAK_POST_SECRET: ${KEYCLOAK_POST_SECRET}
+      KEYCLOACK_REALM_KEY: ${KEYCLOACK_REALM_KEY}
+      DD_API_KEY: ${DD_API_KEY}
     depends_on:
       - post-db
     labels:
@@ -51,7 +51,7 @@ services:
 
   follow-api:
     container_name: follow-api
-    image: ghcr.io/fabrizioserial/jibberjabberfollower-prod:latest
+    image: ghcr.io/fabrizioserial/jibberjabberfollower-${ENV_TAG}:latest
     ports:
       - "8083:8080"
     environment:
@@ -61,9 +61,9 @@ services:
       DB_HOST: follow-db
       DB_PORT: 5432
       KC_URL: proxy:80/keycloak
-      KEYCLOAK_FOLLOW_SECRET: bk2DdIAkAitREUXKWaicD5xvUabEbHaa
-      KEYCLOACK_REALM_KEY: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvAoQzAcQkmC4UF7YFZLIQNu1EHnupVeywQOZKRUsB/NQOxLa2ct3lZAZb05F1Xi9+jEhYPz3XG2YvBSnyGfzpEbqXnuYjI+ek6Zp/XUL/N5tKbH12gGiSMSj/t83lIWqSY/+jrfn5GP9L2zHc5WJHvSm913yp1RKKw19NJawsrkDRXl8UB3H1Wso8d/TgXOeQGIO7OWkWSQO50PsZbEO2siMBaWg+3TLOPvO2PtXPTSefLNFW3ekQKXzUJ1R3Zbo4PKPIe7oQuHDDwAD1BFlPHRZiSeazGZyJddKxlnE5sZQ+5Ij/4zLUnoDK8YC485wAGX3X8oArUXoWaWTt35cTwIDAQAB
-      DD_API_KEY: efb99a13112dd277ba6cc8090dcddd53
+      KEYCLOAK_FOLLOW_SECRET: ${KEYCLOAK_FOLLOW_SECRET}
+      KEYCLOACK_REALM_KEY: ${KEYCLOACK_REALM_KEY}
+      DD_API_KEY: ${DD_API_KEY}
     depends_on:
       - follow-db
     labels:
@@ -111,7 +111,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: ghcr.io/fabrizioserial/javierjavierfront-prod:latest
+    image: ghcr.io/fabrizioserial/javierjavierfront-${ENV_TAG}:latest
     ports:
       - "9090:80"
     restart: always
