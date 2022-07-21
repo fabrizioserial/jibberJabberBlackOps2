@@ -123,7 +123,7 @@ services:
     restart: always
     volumes:
       - ./static/:/usr/share/nginx/html:ro
-      - ./conf.d/:/etc/nginx/conf.d/:ro
+      - ./conf.d/:/etc/nginx/conf.d/:rw
       - ./certbot/www/:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/letsencrypt/:ro
 
