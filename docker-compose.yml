@@ -3,6 +3,7 @@ version: '3'
 services:
 
   datadog:
+    container_name: datadog
     image: datadog/agent
     environment:
       - DD_API_KEY= efb99a13112dd277ba6cc8090dcddd53
@@ -15,7 +16,7 @@ services:
       - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
 
   post-api:
-    container_name: "post-api"
+    container_name: post-api
     image: ghcr.io/fabrizioserial/jibberjabberpost:main
     ports:
       - "8082:8080"
@@ -36,7 +37,7 @@ services:
 
 
   post-db:
-    container_name: "post-db"
+    container_name: post-db
     image: postgres:12
     ports:
       - "5432:5432"
@@ -46,9 +47,10 @@ services:
       POSTGRES_DB: post-db
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
 
   follow-api:
-    container_name: "follow-api"
+    container_name: follow-api
     image: ghcr.io/fabrizioserial/jibberjabberfollower-prod:latest
     ports:
       - "8083:8080"
@@ -68,7 +70,7 @@ services:
       com.datadoghq.ad.logs: '[{"source": "java", "service": "follow-api", "log_processing_rules": [{"type": "multi_line", "name": "log_start_with_date", "pattern" : "\\d{4}-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])"}]}]'
 
   follow-db:
-    container_name: "follow-db"
+    container_name: follow-db
     image: postgres:12
     ports:
       - "5434:5432"
@@ -77,7 +79,8 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: follow-db
     volumes:
-      - followdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
 
   keycloak:
     image: quay.io/keycloak/keycloak:18.0.0
@@ -97,7 +100,7 @@ services:
       - keycloak-db
 
   keycloak-db:
-    container_name: "keycloak-db"
+    container_name: keycloak-db
     image: postgres:12
     ports:
       - "5433:5432"
@@ -115,16 +118,26 @@ services:
 
   proxy:
     container_name: proxy
-    image: nginx
+    image: nginx:latest
     ports:
       - 80:80
+      - 443:443
     restart: always
     depends_on:
       - follow-api
       - post-api
     volumes:
       - ./static/:/usr/share/nginx/html:ro
-      - ./conf.d/:/etc/nginx/conf.d/:ro
+      - ./conf.d/:/etc/nginx/conf.d/:rw
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/letsencrypt/:ro
+
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   pgdata:
